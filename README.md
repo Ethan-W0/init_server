@@ -10,3 +10,4 @@
 1. `docker --version`
 2. `java -version`
 3. `python3.13 --version`
+4. `mysql --version`
