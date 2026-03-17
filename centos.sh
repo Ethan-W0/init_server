@@ -99,4 +99,42 @@ systemctl enable docker
 docker --version
 print_success "Docker 安装并启动完成！"
 
+# 6.mysql安装
+print_step "mysql开始安装！"
+yum remove -y mariadb-libs
+yum install -y tar libaio net-tools
+mkdir -p /usr/local/src/mysql-8.0
+cd /usr/local/src/mysql-8.0
+wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.36-1.el8.x86_64.rpm-bundle.tar
+tar -xvf mysql-8.0.36-1.el8.x86_64.rpm-bundle.tar
+yum localinstall -y \
+  mysql-community-common-8.0*.rpm \
+  mysql-community-client-plugins-8.0*.rpm \
+  mysql-community-libs-8.0*.rpm \
+  mysql-community-client-8.0*.rpm \
+  mysql-community-icu-data-files-8.0*.rpm \
+  mysql-community-server-8.0*.rpm
+echo "
+[mysqld]
+# 8.0 推荐使用 utf8mb4 
+character_set_server=utf8mb4
+init_connect='SET NAMES utf8mb4'
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+# 必须在初始化前设置：不区分大小写
+lower_case_table_names = 1
+
+# 不开启 SQL 严格模式
+sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+" > /etc/my.cnf
+systemctl start mysqld
+systemctl enable mysqld
+print_success "mysql安装成功"
+echo "======================================"
+echo "您的 MySQL 初始临时密码为："
+grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'
+echo "======================================"
 print_step "所有基础环境初始化完毕！"
