@@ -71,7 +71,15 @@ rm -f jdk-17.0.12_linux-x64_bin.tar.gz
 java -version
 print_success "Java 17 安装完成！"
 
-# 5.docker安装
+
+# 5.安装 Golang
+print_step "开始安装 Golang"
+sudo yum install -y golang
+go version
+print_success "Golang 安装完成！"
+
+
+# 6.docker安装
 print_step "开始安装 Docker"
 
 print_warning "准备环境检测..."
@@ -99,7 +107,8 @@ systemctl enable docker
 docker --version
 print_success "Docker 安装并启动完成！"
 
-# 6.mysql安装
+
+# 7.mysql安装
 print_step "mysql开始安装！"
 yum remove -y mariadb-libs
 yum install -y tar libaio net-tools
@@ -114,6 +123,7 @@ yum localinstall -y \
   mysql-community-client-8.0*.rpm \
   mysql-community-icu-data-files-8.0*.rpm \
   mysql-community-server-8.0*.rpm
+
 echo "
 [mysqld]
 # 8.0 推荐使用 utf8mb4 
@@ -130,11 +140,14 @@ lower_case_table_names = 1
 # 不开启 SQL 严格模式
 sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
 " > /etc/my.cnf
+
 systemctl start mysqld
 systemctl enable mysqld
 print_success "mysql安装成功"
+
 echo "======================================"
 echo "您的 MySQL 初始临时密码为："
 grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}'
 echo "======================================"
+
 print_step "所有基础环境初始化完毕！"
